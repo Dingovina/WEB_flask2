@@ -2,10 +2,8 @@
 
 {% block content %}
     {% if 'инженер' in prof or 'строитель' in prof %}
-        <div><img src="images/ship_true.png" alt="инженер, но схемы нет"></div>
-        <div><img src="static/img/ship_true.png" alt="инженер, но схемы нет"></div>
+        <div><img src="http://127.0.0.1:8080/static/img/ship_true.png" alt="инженер, но схемы нет"></div>
     {% else %}
-        <div><img src="images/ship_false.png" alt="неинженер, но схемы нет"></div>
-        <div><img src="static/img/ship_false.png" alt="неинженер, но схемы нет"></div>
+        <div><img src="http://127.0.0.1:8080/static/img/ship_false.png" alt="неинженер, но схемы нет"></div>
     {% endif %}
 {% endblock %}
