@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if type == 'ol' %}
+        <h2>Список профессий</h2>
+        <ol>
+            {% for el in list %}
+                <li>{{ el }}</li>
+            {% endfor %}
+        </ol>
+    {% elif type == 'ul' %}
+        <h2>Список профессий</h2>
+        <ul>
+            {% for el in list %}
+                <li>{{ el }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-primary" role="alert">
+            Проверьте корректность вводимых параметров
+        </div>
+    {% endif %}
+{% endblock %}
