@@ -24,5 +24,21 @@ def list_prof(type):
     return render_template('list_prof.html', **params)
 
 
+@app.route('/answer')
+@app.route('/auto_answer')
+def answer():
+    title = 'Answer'
+    Surname = 'Иванов'
+    Name = 'Иван'
+    ed = 'приемлимое'
+    prof = 'полезная'
+    sex = 'male'
+    motiv = '-'
+    ready = True
+    params = {'title': title, 'surname': Surname, 'name': Name, 'education': ed, 'profession': prof, 'sex': sex,
+              'motivation': motiv, 'ready': ready}
+    return render_template('auto_answer.html', **params)
+
+
 if __name__ == '__main__':
     app.run(port=8080, host='127.0.0.1')
