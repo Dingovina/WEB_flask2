@@ -9,6 +9,14 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from wtforms.validators import DataRequired
 
 
+class RegFrom(FlaskForm):
+    email = StringField('Почта', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    repeat_password = PasswordField('Повторите пароль', validators=[DataRequired()])
+    username = StringField('Имя пользователя', validators=[DataRequired()])
+    submit = SubmitField('Зарегистрироваться')
+
+
 class LoginForm(FlaskForm):
     email = StringField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
@@ -37,19 +45,41 @@ login_manager.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('base.html')
 
 
 @login_manager.user_loader
 def load_user(user_id):
+    db_session.global_init("db/blogs.db")
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def reg():
+    form = RegFrom()
+    if form.validate_on_submit():
+        db_session.global_init("db/blogs.db")
+        db_sess = db_session.create_session()
+        user = User()
+        if form.password.data == form.repeat_password.data:
+            user.email = form.email.data
+            user.password = form.password.data
+            user.name = form.username.data
+            db_sess.add(user)
+            db_sess.commit()
+            return redirect('/login')
+        return render_template('registration.html',
+                               message="пароли не совпадают",
+                               form=form)
+    return render_template('registration.html', title='Регистрация', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
+        db_session.global_init("db/blogs.db")
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
@@ -72,7 +102,18 @@ def logout():
 def addjob():
     form = AddingJobForm()
     if form.validate_on_submit():
+        db_session.global_init("db/blogs.db")
         db_sess = db_session.create_session()
+        if form.validate_on_submit():
+            job = Jobs()
+            job.job_title = form.job_title.data
+            job.team_leader_id = form.team_leader_id.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return redirect('/')
     return render_template('addjob.html', form=form)
 
 
