@@ -11,6 +11,7 @@ blueprint = flask.Blueprint(
 )
 
 
+@blueprint.route('/api/jobs/')
 @blueprint.route('/api/jobs')
 def get_jobs():
     db_sess = db_session.create_session()
@@ -20,7 +21,7 @@ def get_jobs():
             'jobs':
                 [item.to_dict(
                     only=('id', 'team_leader', 'job_title', 'work_size', 'collaborators', 'is_finished', 'user_id'))
-                 for item in jobs]
+                    for item in jobs]
         }
     )
 
@@ -29,10 +30,19 @@ def get_jobs():
 def get_job(job_id):
     db_sess = db_session.create_session()
     job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
-    return jsonify(
-        {
-            'jobs':
-                [job.to_dict(
-                    only=('id', 'team_leader', 'job_title', 'work_size', 'collaborators', 'is_finished', 'user_id'))]
-        }
-    )
+    if job:
+        return jsonify(
+            {
+                'jobs':
+                    [job.to_dict(
+                        only=(
+                            'id', 'team_leader', 'job_title', 'work_size', 'collaborators', 'is_finished', 'user_id'))]
+            }
+        )
+    else:
+        return jsonify(
+            {
+                'response':
+                    'Введён неверный параметр'
+            }
+        )
