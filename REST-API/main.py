@@ -1,6 +1,7 @@
-from data import db_session, jobs_api
+from data import db_session
 from data.jobs import Jobs
 from flask import Flask
+import jobs_api
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'

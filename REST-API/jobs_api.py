@@ -1,7 +1,7 @@
 import flask
 
-from . import db_session
-from .jobs import Jobs
+from data import db_session
+from data.jobs import Jobs
 from flask import jsonify, render_template
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, BooleanField, IntegerField
@@ -31,18 +31,22 @@ def get_jobs():
     form = AddingJobForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        job = Jobs()
-        job.id = form.id.data
-        job.job_title = form.job_title.data
-        job.team_leader = form.team_leader_id.data
-        job.work_size = form.work_size.data
-        job.collaborators = form.collaborators.data
-        job.is_finished = form.is_finished.data
-        db_sess.add(job)
-        db_sess.commit()
-        return 'Форма отправлена'
+        job = db_sess.query(Jobs).filter(Jobs.id == form.id.data)
+        if not job:
+            job = Jobs()
+            job.id = form.id.data
+            job.job_title = form.job_title.data
+            job.team_leader = form.team_leader_id.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return 'Форма отправлена'
+        else:
+            return render_template('add_job.html', title='New Job', form=form, message='Id already exists')
     else:
-        render_template('add_job.html', title='New Job', form=form, message='Поля заполнены некорректно')
+        return render_template('add_job.html', title='New Job', form=form, message='Поля заполнены некорректно.')
     return render_template('add_job.html', title='New Job', form=form)
 
 
@@ -63,6 +67,6 @@ def get_job(job_id):
         return jsonify(
             {
                 'response':
-                    'Введён неверный параметр'
+                    'Invalid job id.'
             }
         )
