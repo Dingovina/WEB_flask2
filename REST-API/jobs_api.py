@@ -31,7 +31,7 @@ def get_jobs():
     form = AddingJobForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        job = db_sess.query(Jobs).filter(Jobs.id == form.id.data)
+        job = db_sess.query(Jobs).filter(Jobs.id == form.id.data).first()
         if not job:
             job = Jobs()
             job.id = form.id.data
@@ -45,8 +45,6 @@ def get_jobs():
             return 'Форма отправлена'
         else:
             return render_template('add_job.html', title='New Job', form=form, message='Id already exists')
-    else:
-        return render_template('add_job.html', title='New Job', form=form, message='Поля заполнены некорректно.')
     return render_template('add_job.html', title='New Job', form=form)
 
 
@@ -80,3 +78,15 @@ def get_job(job_id):
                     'Invalid job id.'
             }
         )
+
+
+@blueprint.route('/api/jobs/delete/<job_id>')
+def delete(job_id):
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+    if job:
+        db_sess.delete(job)
+        db_sess.commit()
+        return f'Job was deleted.'
+    else:
+        return 'Invalid job id.'
