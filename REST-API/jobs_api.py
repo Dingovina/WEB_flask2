@@ -113,3 +113,31 @@ def correct(job_id):
         return render_template('add_job.html', title='New Job', form=form, to_cor=job)
     else:
         return 'Invalid job id.'
+
+
+@blueprint.route('/api/jobs/correct/<job_id>/<new_id>/<new_title>/<new_leader>/<new_size>/<new_coll>/<new_finished>',
+                 methods=["GET", "POST"])
+def auto_correct(job_id, new_id="", new_title="", new_leader="", new_size="", new_coll="", new_finished=""):
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+    if job:
+        if all([new_id, new_title, new_leader, new_size, new_finished]):
+            a_job = db_sess.query(Jobs).filter(Jobs.id == new_id).first()
+            if a_job == job or not a_job:
+                if new_finished not in ['True', 'False']:
+                    return 'Parameter \"is_finished\" is not boolean.'
+                else:
+                    job.id = new_id
+                    job.job_title = new_title
+                    job.team_leader = new_leader
+                    job.work_size = new_size
+                    job.collaborators = new_coll
+                    job.is_finished = bool(new_finished)
+                    db_sess.commit()
+                    return 'Форма отправлена.'
+            else:
+                return 'Id already exist.'
+        else:
+            return 'Not all parameters are indicated.'
+    else:
+        return 'Invalid job id.'
