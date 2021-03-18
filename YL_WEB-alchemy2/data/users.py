@@ -18,7 +18,6 @@ class User(SqlAlchemyBase, UserMixin):
     def __repr__(self):
         return f'<Colonist> {self.id} {self.email} {self.password}'
 
-
     def check_password(self, trying_pass):
         if trying_pass == self.password:
             return True

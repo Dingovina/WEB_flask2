@@ -53,6 +53,16 @@ def get_jobs():
 @blueprint.route('/api/jobs/<job_id>')
 def get_job(job_id):
     db_sess = db_session.create_session()
+    if job_id == 'all':
+        jobs = db_sess.query(Jobs).all()
+        return jsonify(
+            {
+                'jobs':
+                    [item.to_dict(
+                        only=('id', 'team_leader', 'job_title', 'work_size', 'collaborators', 'is_finished', 'user_id'))
+                        for item in jobs]
+            }
+        )
     job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
     if job:
         return jsonify(
