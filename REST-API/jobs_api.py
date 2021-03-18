@@ -90,3 +90,26 @@ def delete(job_id):
         return f'Job was deleted.'
     else:
         return 'Invalid job id.'
+
+
+@blueprint.route('/api/jobs/correct/<job_id>', methods=["GET", "POST"])
+def correct(job_id):
+    db_sess = db_session.create_session()
+    form = AddingJobForm()
+    job = db_sess.query(Jobs).filter(Jobs.id == job_id).first()
+    if job:
+        if form.validate_on_submit():
+            a_job = db_sess.query(Jobs).filter(Jobs.id == form.id.data).first()
+            if a_job == job or not a_job:
+                job.id = form.id.data
+                job.job_title = form.job_title.data
+                job.team_leader = form.team_leader_id.data
+                job.work_size = form.work_size.data
+                job.collaborators = form.collaborators.data
+                job.is_finished = form.is_finished.data
+                db_sess.add(job)
+                db_sess.commit()
+                return 'Форма отправлена'
+        return render_template('add_job.html', title='New Job', form=form, to_cor=job)
+    else:
+        return 'Invalid job id.'

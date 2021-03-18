@@ -6,8 +6,12 @@
         {{ form.hidden_tag() }}
         <p>
             {{ form.id.label }}<br>
-            {{ form.id(class="form-control", type="text") }}<br>
-            {% for error in form.job_title.errors %}
+            {% if to_cor %}
+                {{ form.id(class="form-control", type="text", value=to_cor.id) }}<br>
+            {% else %}
+                {{ form.id(class="form-control", type="text") }}<br>
+            {% endif %}
+            {% for error in form.id.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
                 </div>
@@ -15,7 +19,11 @@
         </p>
         <p>
             {{ form.job_title.label }}<br>
-            {{ form.job_title(class="form-control", type="text") }}<br>
+            {% if to_cor %}
+                {{ form.job_title(class="form-control", type="text", value=to_cor.job_title) }}<br>
+            {% else %}
+                {{ form.job_title(class="form-control", type="text") }}<br>
+            {% endif %}
             {% for error in form.job_title.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -24,7 +32,11 @@
         </p>
         <p>
             {{ form.team_leader_id.label }}<br>
-            {{ form.team_leader_id(class="form-control", type="text") }}<br>
+            {% if to_cor %}
+                {{ form.team_leader_id(class="form-control", type="text", value=to_cor.team_leader) }}<br>
+            {% else %}
+                {{ form.team_leader_id(class="form-control", type="text") }}<br>
+            {% endif %}
             {% for error in form.team_leader_id.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -33,7 +45,11 @@
         </p>
         <p>
             {{ form.work_size.label }}<br>
-            {{ form.work_size(class="form-control", type="text") }}<br>
+            {% if to_cor %}
+                {{ form.work_size(class="form-control", type="text", value=to_cor.work_size) }}<br>
+            {% else %}
+                {{ form.work_size(class="form-control", type="text") }}<br>
+            {% endif %}
             {% for error in form.work_size.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
@@ -42,7 +58,11 @@
         </p>
         <p>
             {{ form.collaborators.label }}<br>
-            {{ form.collaborators(class="form-control", type="text") }}<br>
+            {% if to_cor %}
+                {{ form.collaborators(class="form-control", type="text", value=to_cor.collaborators) }}<br>
+            {% else %}
+                {{ form.collaborators(class="form-control", type="text") }}<br>
+            {% endif %}
             {% for error in form.collaborators.errors %}
                 <div class="alert alert-danger" role="alert">
                     {{ error }}
