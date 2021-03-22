@@ -17,6 +17,10 @@
             {% else %}
                 Job is not finished.
             {% endif %}
+            {% if current_user.name == job.team_leader or current_user.id == 1%}
+                <a class="btn btn-success" href="/correct/{{job.id}}">Correct</a>
+                <a class="btn btn-danger" href="/delete/{{job.id}}">Delete</a>
+            {% endif %}
             </div>
     {% endfor %}
 {% endblock %}

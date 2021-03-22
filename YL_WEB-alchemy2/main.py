@@ -1,4 +1,4 @@
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from data import db_session
 from data.users import User
 from data.jobs import Jobs
@@ -26,7 +26,6 @@ class LoginForm(FlaskForm):
 
 class AddingJobForm(FlaskForm):
     job_title = StringField('Job title', validators=[DataRequired()])
-    team_leader_id = IntegerField('Team Leader id', validators=[DataRequired()])
     work_size = IntegerField('Work size', validators=[DataRequired()])
     collaborators = StringField('collaborators', validators=[DataRequired()])
     is_finished = BooleanField('Is job finished?')
@@ -125,7 +124,7 @@ def addjob():
         if form.validate_on_submit():
             job = Jobs()
             job.job_title = form.job_title.data
-            job.team_leader = form.team_leader_id.data
+            job.team_leader = current_user.id
             job.work_size = form.work_size.data
             job.collaborators = form.collaborators.data
             job.is_finished = form.is_finished.data
@@ -133,6 +132,38 @@ def addjob():
             db_sess.commit()
             return redirect('/')
     return render_template('addjob.html', form=form)
+
+
+@app.route('/delete/<id>')
+def delete_job(id):
+    db_session.global_init("db/blogs.db")
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    if job:
+        db_sess.delete(job)
+        db_sess.commit()
+        return redirect('/')
+    else:
+        return 'Invalid job id.'
+
+
+@app.route('/correct/<id>', methods=["GET", "POST"])
+def correct_job(id):
+    db_session.global_init("db/blogs.db")
+    db_sess = db_session.create_session()
+    job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+    if job:
+        form = AddingJobForm()
+        if form.validate_on_submit():
+            job.job_title = form.job_title.data
+            job.team_leader = current_user.id
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return redirect('/')
+        return render_template('addjob.html', form=form, job=job)
 
 
 if __name__ == '__main__':
