@@ -1,10 +1,11 @@
 from flask_login import LoginManager, login_user, login_required, logout_user
 from data import db_session
 from data.users import User
+from data.jobs import Jobs
 import datetime
 from flask import Flask, redirect, render_template
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField
 from wtforms.validators import DataRequired
 
 
@@ -23,19 +24,46 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Войти')
 
 
+class AddingJobForm(FlaskForm):
+    job_title = StringField('Job title', validators=[DataRequired()])
+    team_leader_id = IntegerField('Team Leader id', validators=[DataRequired()])
+    work_size = IntegerField('Work size', validators=[DataRequired()])
+    collaborators = StringField('collaborators', validators=[DataRequired()])
+    is_finished = BooleanField('Is job finished?')
+    submit = SubmitField('Submit')
+
+
 app = Flask(__name__)
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
     days=365
 )
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    db_session.global_init("db/blogs.db")
+    db_sess = db_session.create_session()
+    jobs = db_sess.query(Jobs).all()
+    data = []
+    for job in jobs:
+        save = {}
+        lead = db_sess.query(User).filter(User.id == job.team_leader).first()
+        coll = job.collaborators.split(', ')
+        users = []
+        for id in coll:
+            coller = db_sess.query(User).filter(User.id == id).first()
+            users.append(coller.name)
+        save['id'] = job.id
+        save['team_leader'] = lead.name
+        save['job_title'] = job.job_title
+        save['work_size'] = job.work_size
+        save['colls'] = users
+        save['is_finished'] = job.is_finished
+        data.append(save)
+    return render_template('index.html', data=data)
 
 
 @login_manager.user_loader
@@ -86,6 +114,25 @@ def login():
 def logout():
     logout_user()
     return redirect("/")
+
+
+@app.route('/addjob', methods=['GET', 'POST'])
+def addjob():
+    form = AddingJobForm()
+    if form.validate_on_submit():
+        db_session.global_init("db/blogs.db")
+        db_sess = db_session.create_session()
+        if form.validate_on_submit():
+            job = Jobs()
+            job.job_title = form.job_title.data
+            job.team_leader = form.team_leader_id.data
+            job.work_size = form.work_size.data
+            job.collaborators = form.collaborators.data
+            job.is_finished = form.is_finished.data
+            db_sess.add(job)
+            db_sess.commit()
+            return redirect('/')
+    return render_template('addjob.html', form=form)
 
 
 if __name__ == '__main__':

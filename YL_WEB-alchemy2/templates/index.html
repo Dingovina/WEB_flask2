@@ -1,5 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Index page</h1>
+    <h1>Jobs</h1>
+    {% for job in data %}
+        <p>
+            <div class="alert alert-primary" role="alert">
+            <h3>{{ job.job_title }}</h3><br>
+            Job leader: {{ job.team_leader }}<br>
+            Job size: {{ job.work_size }}<br>
+            Collabs:
+            {% for user in job.colls %}
+                {{ user }}
+            {% endfor %}<br>
+            {% if job.is_finished %}
+                Job is finished.
+            {% else %}
+                Job is not finished.
+            {% endif %}
+            </div>
+    {% endfor %}
 {% endblock %}
